@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jwt.seckill.dao.OrderDao">
+
+    <resultMap type="com.jwt.seckill.entity.Order" id="OrderMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="stockId" column="stock_id" jdbcType="INTEGER"/>
+        <result property="promoId" column="promo_id" jdbcType="INTEGER"/>
+        <result property="amount" column="amount" jdbcType="INTEGER"/>
+        <result property="stockPrice" column="stock_price" jdbcType="NUMERIC"/>
+        <result property="totalPrice" column="total_price" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="OrderMap">
+        select id,
+               user_id,
+               stock_id,
+               promo_id,
+               amount,
+               stock_price,
+               total_price
+        from seckill.order
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="OrderMap">
+        select id,
+               user_id,
+               stock_id,
+               promo_id,
+               amount,
+               stock_price,
+               total_price
+        from seckill.order
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="OrderMap">
+        select
+        id, user_id, stock_id, promo_id, amount, stock_price, total_price
+        from seckill.order
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="stockId != null">
+                and stock_id = #{stockId}
+            </if>
+            <if test="promoId != null">
+                and promo_id = #{promoId}
+            </if>
+            <if test="amount != null">
+                and amount = #{amount}
+            </if>
+            <if test="stockPrice != null">
+                and stock_price = #{stockPrice}
+            </if>
+            <if test="totalPrice != null">
+                and total_price = #{totalPrice}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="false">
+        insert into seckill.order(id, user_id, stock_id, promo_id, amount, stock_price, total_price)
+        values (#{id}, #{userId}, #{stockId}, #{promoId}, #{amount}, #{stockPrice}, #{totalPrice})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="false">
+        insert into seckill.order(id, user_id, stock_id, promo_id, amount, stock_price, total_price)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.id}, #{entity.userId}, #{entity.stockId}, #{entity.promoId}, #{entity.amount}, #{entity.stockPrice},
+            #{entity.totalPrice})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="false">
+        insert into seckill.order(id, user_id, stock_id, promo_id, amount, stock_price, total_price)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.id}, #{entity.userId}, #{entity.stockId}, #{entity.promoId}, #{entity.amount}, #{entity.stockPrice},
+            #{entity.totalPrice})
+        </foreach>
+        on duplicate key update
+        user_id = values(user_id) , stock_id = values(stock_id) , promo_id = values(promo_id) , amount = values(amount)
+        , stock_price = values(stock_price) , total_price = values(total_price)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update seckill.order
+        <set>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="stockId != null">
+                stock_id = #{stockId},
+            </if>
+            <if test="promoId != null">
+                promo_id = #{promoId},
+            </if>
+            <if test="amount != null">
+                amount = #{amount},
+            </if>
+            <if test="stockPrice != null">
+                stock_price = #{stockPrice},
+            </if>
+            <if test="totalPrice != null">
+                total_price = #{totalPrice},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from seckill.order
+        where id = #{id}
+    </delete>
+
+</mapper>
+

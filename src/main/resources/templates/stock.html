@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form class="form-buy" action="/seckill/1/verify" method="post">
+  <h2 class="form-register-heading">秒杀</h2>
+  <label for="input-name" >购买量</label>
+  <input id="input-name" type="text" name="amount"  placeholder="购买量" required><br/>
+  <img src="/captcha/seckill" width="130px" height="48px"  alt="验证码"/><br/>
+  <label for="input-code" >验证码</label>
+  <input id="input-code" type="text" name="verCode" placeholder="验证码" required autofocus><br/>
+  <button class="btn" id="btn-register" type="submit">抢购</button>
+</form>
+</body>
+</html>

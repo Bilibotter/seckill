@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jwt.seckill.dao.UserDao">
+
+    <resultMap type="com.jwt.seckill.entity.User" id="UserMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="tel" column="tel" jdbcType="VARCHAR"/>
+        <result property="head" column="head" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="UserMap">
+        select id,
+               name,
+               password,
+               tel,
+               head
+        from seckill.user
+        where id = #{id}
+    </select>
+
+    <select id="queryByTel" resultMap="UserMap">
+        select id,
+               name,
+               password,
+               tel,
+               head
+        from seckill.user
+        where tel = #{tel}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="UserMap">
+        select id,
+               name,
+               password,
+               tel,
+               head
+        from seckill.user
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="UserMap">
+        select
+        id, name, password, tel, head
+        from seckill.user
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="password != null and password != ''">
+                and password = #{password}
+            </if>
+            <if test="tel != null and tel != ''">
+                and tel = #{tel}
+            </if>
+            <if test="head != null and head != ''">
+                and head = #{head}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into seckill.user(name, password, tel, head)
+        values (#{name}, #{password}, #{tel}, #{head})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into seckill.user(name, password, tel, head)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.name}, #{entity.password}, #{entity.tel}, #{entity.head})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into seckill.user(name, password, tel, head)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.name}, #{entity.password}, #{entity.tel}, #{entity.head})
+        </foreach>
+        on duplicate key update
+        name = values(name) , password = values(password) , tel = values(tel) , head = values(head)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update seckill.user
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="tel != null and tel != ''">
+                tel = #{tel},
+            </if>
+            <if test="head != null and head != ''">
+                head = #{head},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from seckill.user
+        where id = #{id}
+    </delete>
+
+    <select id="getIdByTel" resultMap="UserMap">
+        select id,
+               tel
+        from seckill.user
+        where tel = #{tel}
+    </select>
+
+</mapper>
+

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<ul>
+    <li th:text="'标题：'+${stock.title}"></li>
+    <li th:text="'描述：'+${stock.description}"></li>
+    <li th:text="'价格：'+${stock.price}"></li>
+    <li th:text="'库存：'+${stock.remain}"></li>
+    <li th:text="'销量：'+${stock.sold}"></li>
+</ul>
+<form class="form-buy" action="/seckill/1/verify" method="post">
+    <h2 class="form-register-heading">秒杀</h2>
+    <label for="input-name" >购买量</label>
+    <input id="input-name" type="text" name="amount"  placeholder="购买量" required><br/>
+    <img src="/captcha/seckill" width="260px" height="96x"  alt="验证码"/><br/>
+    <label for="input-code" >验证码</label>
+    <input id="input-code" type="text" name="verCode" placeholder="验证码" required autofocus><br/>
+    <button class="btn" id="btn-register" type="submit">抢购</button>
+</form>
+<script>
+    var query = window.location.search.substring(1);
+    var vars = query.split("&");
+    for (var i=0;i<vars.length;i++) {
+        var pair = vars[i].split("=");
+        if(pair[0] === "answer") {
+            if (pair[1] === "error" ) {
+                alert("验证码错误！")
+            }
+        }
+    }
+</script>
+</body>
+</html>

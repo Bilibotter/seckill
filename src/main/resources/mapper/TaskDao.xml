@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jwt.seckill.dao.TaskDao">
+
+    <resultMap type="com.jwt.seckill.entity.Task" id="TaskMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="lastId" column="last_id" jdbcType="INTEGER"/>
+        <result property="finish" column="finish" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="TaskMap">
+        select id,
+               last_id,
+               finish
+        from seckill.task
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="TaskMap">
+        select id,
+               last_id,
+               finish
+        from seckill.task
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="TaskMap">
+        select
+        id, last_id, finish
+        from seckill.task
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="lastId != null">
+                and last_id = #{lastId}
+            </if>
+            <if test="finish != null and finish != ''">
+                and finish = #{finish}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into seckill.task(last_id, finish)
+        values (#{lastId}, #{finish})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into seckill.task(last_id, finish)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.lastId}, #{entity.finish})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into seckill.task(last_id, finish)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.lastId}, #{entity.finish})
+        </foreach>
+        on duplicate key update
+        last_id = values(last_id) , finish = values(finish)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update seckill.task
+        <set>
+            <if test="lastId != null">
+                last_id = #{lastId},
+            </if>
+            <if test="finish != null and finish != ''">
+                finish = #{finish},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from seckill.task
+        where id = #{id}
+    </delete>
+
+    <select id="getLastTask" resultMap="TaskMap">
+        select id, last_id, finish from seckill.task where id = (select max(id) from seckill.task);
+    </select>
+
+    <!--通过主键修改数据-->
+    <update id="updateByLastId">
+        update seckill.task
+        <set>
+            <if test="finish != null and finish != ''">
+                finish = #{finish},
+            </if>
+        </set>
+        where last_id = #{lastId}
+    </update>
+
+</mapper>
+

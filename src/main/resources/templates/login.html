@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+</head>
+<body>
+<p>New here? Click
+  <a th:href="@{/register}">here</a> to register.</p>
+<form class="form-signin" action="/login" method="post">
+  <h2 class="form-signin-heading">用户登录</h2>
+
+  <label for="input-username" >用户名</label>
+  <input id="input-username" type="text" name="username" placeholder="用户名" required autofocus><br/>
+
+  <label for="input-password" >密码</label>
+  <input id="input-password" type="password" name="password"  placeholder="密码" required><br/>
+  <div class="checkbox">
+    <label>
+      <input id="remember-me" type="checkbox" value="remember-me"> 记住我
+    </label>
+  </div>
+  <button class="btn btn-lg btn-primary btn-block" id="btn-signin">登录</button>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jwt.seckill.dao.PromoDao">
+
+    <resultMap type="com.jwt.seckill.entity.Promo" id="PromoMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="start" column="start" jdbcType="TIMESTAMP"/>
+        <result property="end" column="end" jdbcType="TIMESTAMP"/>
+        <result property="stockId" column="stock_id" jdbcType="INTEGER"/>
+        <result property="price" column="price" jdbcType="NUMERIC"/>
+        <result property="finish" column="finish" jdbcType="VARCHAR"/>
+        <result property="limit" column="limit" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="PromoMap">
+        select id,
+               name,
+               start,
+               end,
+               stock_id,
+               price,
+               finish,
+               `limit`
+        from seckill.promo
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="PromoMap">
+        select id,
+               name,
+               start,
+               end,
+               stock_id,
+               price,
+               finish,
+               `limit`
+        from seckill.promo
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="PromoMap">
+        select
+        id, name, start, end, stock_id, price, finish, limit
+        from seckill.promo
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="start != null">
+                and start = #{start}
+            </if>
+            <if test="end != null">
+                and end = #{end}
+            </if>
+            <if test="stockId != null">
+                and stock_id = #{stockId}
+            </if>
+            <if test="price != null">
+                and price = #{price}
+            </if>
+            <if test="finish != null">
+                and finish = #{finish}
+            </if>
+            <if test="limit != null">
+                and `limit` = #{limit}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into seckill.promo(name, start, end, stock_id, price, finish, `limit`)
+        values (#{name}, #{start}, #{end}, #{stockId}, #{price}, #{finish}, #{limit})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into seckill.promo(name, start, end, stock_id, price, finish, `limit`)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.name}, #{entity.start}, #{entity.end}, #{entity.stockId}, #{entity.price}, #{entity.finish},
+            #{entity.limit})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into seckill.promo(name, start, end, stock_id, price, finish, `limit`)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.name}, #{entity.start}, #{entity.end}, #{entity.stockId}, #{entity.price}, #{entity.finish},
+            #{entity.limit})
+        </foreach>
+        on duplicate key update
+        name = values(name) , start = values(start) , end = values(end) , stock_id = values(stock_id) , price =
+        values(price) , finish = values(finish) , `limit` = values(limit)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update seckill.promo
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="start != null">
+                start = #{start},
+            </if>
+            <if test="end != null">
+                end = #{end},
+            </if>
+            <if test="stockId != null">
+                stock_id = #{stockId},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="finish != null">
+                finish = #{finish},
+            </if>
+            <if test="limit != null">
+                `limit` = #{limit},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from seckill.promo
+        where id = #{id}
+    </delete>
+
+    <select id="queryByStockId" resultMap="PromoMap">
+        select id,
+               name,
+               start,
+               end,
+               stock_id,
+               price,
+               finish,
+               `limit`
+        from seckill.promo
+        where stock_id = #{stockId}
+    </select>
+
+    <select id="getUpdateId" resultType="java.lang.Long">
+        select id from seckill.promo where id > #{lastId}
+    </select>
+
+    <select id="queryUpdatePromo" resultMap="PromoMap">
+        select id,
+               name,
+               start,
+               end,
+               stock_id,
+               price,
+               finish,
+               `limit`
+        from seckill.promo
+        where start &gt; #{date}
+          and finish &lt; 0
+    </select>
+
+    <update id="updateState">
+        update seckill.promo set finish = #{status} where id = #{id}
+    </update>
+
+    <!--理论上只会修改秒杀活动的状态-->
+    <update id="updateBatch" keyProperty="id" useGeneratedKeys="true">
+        <foreach collection="promos" item="promo" separator=";">
+            update seckill.promo
+            <set>
+                <if test="promo.finish != null">
+                    finish = #{promo.finish},
+                </if>
+            </set>
+            where id = #{promo.id}
+        </foreach>
+    </update>
+
+    <select id="queryPromoNotRemainOneHours" resultMap="PromoMap">
+        select id,
+               name,
+               start,
+               end,
+               stock_id,
+               price,
+               finish,
+               `limit`
+        from seckill.promo
+        where end > now()
+          and start &lt; #{gate}
+          and finish between -4 and -2
+    </select>
+
+    <select id="selectScheduledFailed" resultMap="PromoMap">
+        select id,
+               finish
+        from seckill.promo
+        where finish &lt; 0
+    </select>
+</mapper>
+

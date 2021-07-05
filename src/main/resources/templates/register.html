@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Register</h1>
+
+<form class="form-register" action="/register" method="post">
+    <h2 class="form-register-heading">用户注册</h2>
+    <label for="input-name" >名字</label>
+    <input id="input-name" type="text" name="name"  placeholder="名字" required><br/>
+    <label for="input-tel" >手机号</label>
+    <input id="input-tel" type="text" name="tel"  placeholder="手机号" required><br/>
+    <img src="/captcha" width="130px" height="48px"  alt="验证码"/><br/>
+    <label for="input-code" >验证码</label>
+    <input id="input-code" type="text" name="code" placeholder="验证码" required autofocus><br/>
+    <label for="input-password" >密码</label>
+    <input id="input-password" type="password" name="password"  placeholder="密码" required><br/>
+    <button class="btn" id="btn-register" type="submit">注册</button>
+</form>
+</body>
+</html>
