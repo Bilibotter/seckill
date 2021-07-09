@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.retry.RetryException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -140,24 +141,25 @@ public class StockServiceImpl implements StockService {
         return this.stockDao.deleteById(id) > 0;
     }
 
+    public boolean soldStockWithOptimisticLock(Long id, Integer amount) {
+        Integer remain = stockDao.selectRemain(id);
+        if (remain < amount) {
+            throw new RuntimeException("未知错误导致超卖");
+        }
+        return stockDao.soldStock(id, amount, remain) == 1;
+    }
+
     @Transactional
     public boolean soldStock(Long id, Integer amount) {
         for (int retry=1; retry<=5; retry++) {
-            Integer remain = stockDao.selectRemain(id);
-            if (remain < amount) {
-                throw new RuntimeException("未知错误导致超卖");
-            }
-            if(stockDao.soldStock(id, amount, remain) != 1) {
-                if (retry == 5) {
-                    throw new RuntimeException("更新失败次数过多，导致"+id+"更新失败");
-                }
+            if(!soldStockWithOptimisticLock(id, amount)) {
                 log.warn("乐观更新商品{}失败，更新次数{}", id, retry);
             }
             else {
                 return true;
             }
         }
-        return false;
+        throw new RuntimeException("更新失败次数过多，导致"+id+"更新失败");
     }
 
     public Integer selectRemain(Long id) {

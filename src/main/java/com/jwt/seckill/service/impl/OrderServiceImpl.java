@@ -129,8 +129,7 @@ public class OrderServiceImpl implements OrderService {
             logger.warn("尝试重复插入{}",order);
             return;
         }
-        boolean success = service.soldStock(order.getStockId(), order.getAmount());
-        if (!success) {
+        if (!service.soldStock(order.getStockId(), order.getAmount())) {
             logger.error("未知错误导致超卖，订单ID{}", order.getId());
             throw new RuntimeException("未知错误导致超卖，订单ID"+order.getId());
         }
