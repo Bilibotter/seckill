@@ -117,7 +117,7 @@
         where id = #{id}
     </delete>
 
-    <select id="selectRemain">
+    <select id="selectRemain" resultType="java.lang.Integer">
         select remain from stock where id = #{id}
     </select>
 

@@ -86,7 +86,7 @@ public interface StockDao {
 
     int soldStocks(List<Stock> stocks);
 
-    int selectRemain(Long id);
+    Integer selectRemain(Long id);
 
 }
 

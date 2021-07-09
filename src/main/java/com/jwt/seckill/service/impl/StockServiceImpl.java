@@ -5,10 +5,12 @@ import com.jwt.seckill.entity.Stock;
 import com.jwt.seckill.dao.StockDao;
 import com.jwt.seckill.redis.CachePrefix;
 import com.jwt.seckill.service.StockService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.concurrent.TimeUnit;
  * @author makejava
  * @since 2021-06-20 15:23:16
  */
+@Slf4j
 @Service("stockService")
 public class StockServiceImpl implements StockService {
     private static final String STOCK_PREFIX = "stk::";
@@ -137,8 +140,24 @@ public class StockServiceImpl implements StockService {
         return this.stockDao.deleteById(id) > 0;
     }
 
-    public boolean soldStock(Long id, Integer amount, Integer remain) {
-        return stockDao.soldStock(id, amount, remain) == 1;
+    @Transactional
+    public boolean soldStock(Long id, Integer amount) {
+        for (int retry=1; retry<=5; retry++) {
+            Integer remain = stockDao.selectRemain(id);
+            if (remain < amount) {
+                throw new RuntimeException("未知错误导致超卖");
+            }
+            if(stockDao.soldStock(id, amount, remain) != 1) {
+                if (retry == 5) {
+                    throw new RuntimeException("更新失败次数过多，导致"+id+"更新失败");
+                }
+                log.warn("乐观更新商品{}失败，更新次数{}", id, retry);
+            }
+            else {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Integer selectRemain(Long id) {

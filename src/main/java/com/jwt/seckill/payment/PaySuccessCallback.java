@@ -18,6 +18,6 @@ public class PaySuccessCallback implements SuccessCallback<Order> {
     @Override
     public void onSuccess(Order order) {
         // logger.info("用户{}支付{}件{}商品成功，交易金额{}", order.getUserId(), order.getAmount(), order.getStockId(), order.getTotalPrice());
-        template.send(KafkaTopics.ORDER, order);
+        template.send(KafkaTopics.ORDER, order.getStockId().toString(), order);
     }
 }
