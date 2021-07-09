@@ -137,8 +137,12 @@ public class StockServiceImpl implements StockService {
         return this.stockDao.deleteById(id) > 0;
     }
 
-    public boolean soldStock(Long id, Integer amount) {
-        return stockDao.soldStock(id, amount) == 1;
+    public boolean soldStock(Long id, Integer amount, Integer remain) {
+        return stockDao.soldStock(id, amount, remain) == 1;
+    }
+
+    public Integer selectRemain(Long id) {
+        return stockDao.selectRemain(id);
     }
 
     public int soldStocks(List<Stock> stocks) {

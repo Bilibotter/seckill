@@ -117,11 +117,15 @@
         where id = #{id}
     </delete>
 
+    <select id="selectRemain">
+        select remain from stock where id = #{id}
+    </select>
+
     <update id="soldStock">
         update seckill.stock
         set remain = remain - #{amount},
             sold = sold + #{amount}
-        where id = #{id} and remain >= #{amount}
+        where id = #{id} and remain = #{remain}
     </update>
 
     <update id="soldStocks" keyProperty="id">
