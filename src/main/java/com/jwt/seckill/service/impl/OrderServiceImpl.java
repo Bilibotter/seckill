@@ -110,10 +110,7 @@ public class OrderServiceImpl implements OrderService {
     public void updateBatchStock(Map<Long, Integer> remains) {
         List<Stock> stocks = new LinkedList<>();
         for (Map.Entry<Long, Integer> entry:remains.entrySet()) {
-            Integer amount = entry.getValue();
-            if(!service.soldStock(entry.getKey(), entry.getValue())) {
-                throw new RuntimeException("未知错误导致商品"+entry.getKey()+"更新失败");
-            }
+            service.soldStock(entry.getKey(), entry.getValue());
         }
     }
 
@@ -129,9 +126,6 @@ public class OrderServiceImpl implements OrderService {
             logger.warn("尝试重复插入{}",order);
             return;
         }
-        if (!service.soldStock(order.getStockId(), order.getAmount())) {
-            logger.error("未知错误导致超卖，订单ID{}", order.getId());
-            throw new RuntimeException("未知错误导致超卖，订单ID"+order.getId());
-        }
+        service.soldStock(order.getStockId(), order.getAmount());
     }
 }

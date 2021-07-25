@@ -82,7 +82,7 @@ public interface StockDao {
      */
     int deleteById(Long id);
 
-    int soldStock(Long id, Integer amount, Integer remain);
+    int soldStock(Long id, Integer amount);
 
     int soldStocks(List<Stock> stocks);
 

@@ -141,25 +141,15 @@ public class StockServiceImpl implements StockService {
         return this.stockDao.deleteById(id) > 0;
     }
 
-    public boolean soldStockWithOptimisticLock(Long id, Integer amount) {
-        Integer remain = stockDao.selectRemain(id);
-        if (remain < amount) {
+    public void soldStockWithOptimisticLock(Long id, Integer amount) {
+        if (stockDao.soldStock(id, amount) != 1) {
             throw new RuntimeException("未知错误导致超卖");
         }
-        return stockDao.soldStock(id, amount, remain) == 1;
     }
 
     @Transactional
-    public boolean soldStock(Long id, Integer amount) {
-        for (int retry=1; retry<=5; retry++) {
-            if(!soldStockWithOptimisticLock(id, amount)) {
-                log.warn("乐观更新商品{}失败，更新次数{}", id, retry);
-            }
-            else {
-                return true;
-            }
-        }
-        throw new RuntimeException("更新失败次数过多，导致"+id+"更新失败");
+    public void soldStock(Long id, Integer amount) {
+        soldStockWithOptimisticLock(id, amount);
     }
 
     public Integer selectRemain(Long id) {

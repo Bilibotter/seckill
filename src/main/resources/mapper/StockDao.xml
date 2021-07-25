@@ -125,7 +125,7 @@
         update seckill.stock
         set remain = remain - #{amount},
             sold = sold + #{amount}
-        where id = #{id} and remain = #{remain}
+        where id = #{id} and remain >= #{amount}
     </update>
 
     <update id="soldStocks" keyProperty="id">
