@@ -124,6 +124,9 @@ public class JmeterController {
         if (count.equals(TokenStatus.INVALID_AMOUNT)) {
             return "超过限购";
         }
+        if (count.equals(TokenStatus.BUY_DUPLICATE)) {
+            return "请不要重复购买";
+        }
         if (count.equals("5")) {
             return "进入黑名单";
         }

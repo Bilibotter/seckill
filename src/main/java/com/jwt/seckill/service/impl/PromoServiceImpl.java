@@ -8,6 +8,8 @@ import com.jwt.seckill.entity.Stock;
 import com.jwt.seckill.redis.CachePrefix;
 import com.jwt.seckill.service.PromoService;
 import com.jwt.seckill.task.PromoState;
+import org.redisson.api.RBloomFilter;
+import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * (Promo)表服务实现类
@@ -51,6 +54,9 @@ public class PromoServiceImpl implements PromoService {
     @Qualifier(value = "StdDateFormat")
     @Autowired
     private SimpleDateFormat ft;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     // private final SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -95,6 +101,15 @@ public class PromoServiceImpl implements PromoService {
                 template.opsForValue().setIfAbsent(CachePrefix.REMAIN_PREFIX+stockId, remain.toString());
                 // 将活动标志放在最后，保证有活动标志时一定有预热缓存
                 objectTemplate.opsForValue().set(CachePrefix.PROMO_PREFIX +stockId, promoCO, Duration.ofMillis(expire));
+                // 设置重复购买的布隆过滤器
+                RBloomFilter<String> filter = redissonClient.getBloomFilter(CachePrefix.BLOOM_FILTER+stockId);
+                if (filter.isExists()) {
+                    logger.info("Bloom filter {} has exist!", CachePrefix.BLOOM_FILTER+stockId);
+                }
+                else {
+                    filter.tryInit(remain, 0.001);
+                    filter.expire(expire, TimeUnit.MILLISECONDS);
+                }
                 // 活动结束后3~6分钟库存都依然有效
                 template.expire(CachePrefix.REMAIN_PREFIX+stockId, Duration.ofSeconds(expire+180+random.nextInt(180)));
                 // 发布状态和调度状态行为一致，没必要使用发布状态

@@ -7,6 +7,8 @@ import com.jwt.seckill.redis.CachePrefix;
 import com.jwt.seckill.redis.TokenStatus;
 import com.jwt.seckill.service.impl.CacheService;
 import com.jwt.seckill.util.IdUtil;
+import org.redisson.api.RBloomFilter;
+import org.redisson.api.RedissonClient;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -28,6 +30,9 @@ public class QualificationMessageListener {
 
     @Autowired
     private CacheService cacheService;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     org.slf4j.Logger logger = LoggerFactory.getLogger(QualificationMessageListener.class);
 
@@ -108,6 +113,13 @@ public class QualificationMessageListener {
                 cacheService.addToBlackList(userMsg.getUserId());
             }
             return false;
+        }
+        else {
+            RBloomFilter<String> filter = redissonClient.getBloomFilter(CachePrefix.BLOOM_FILTER+userMsg.getStockId());
+            if (filter.contains(userMsg.getUserId().toString())) {
+                cacheService.setTokenState(token, TokenStatus.BUY_DUPLICATE);
+                return false;
+            }
         }
         return true;
     }
